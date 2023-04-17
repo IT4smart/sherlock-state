@@ -3,111 +3,54 @@ package state_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	state "github.com/IT4smart/sherlock-state/v2"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestDraftState(t *testing.T) {
-	// Create a new object in draft state
+func TestActualState_SetState(t *testing.T) {
+	// create a new object with an actual state of "offline"
 	obj := &state.Object{
-		ActualState:  &state.DraftState{},
-		DesiredState: &state.DraftState{},
+		ActualState: &state.ActualState{State: "offline"},
 	}
 
-	assert.Equal(t, "draft", obj.ActualState.GetState())
-
-}
-
-func TestDraft_SetState_Warm(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.DraftState{},
-		DesiredState: &state.DraftState{},
-	}
-
-	obj.ActualState.SetState("warm", obj)
-
-	assert.Equal(t, "warm", obj.ActualState.GetState())
-}
-
-func TestWarmState(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.WarmState{},
-		DesiredState: &state.WarmState{},
-	}
-
-	assert.Equal(t, "warm", obj.ActualState.GetState())
-}
-
-func TestWarm_SetState_Online(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.WarmState{},
-		DesiredState: &state.WarmState{},
-	}
-
+	// set the state to "online"
 	obj.ActualState.SetState("online", obj)
 
-	assert.Equal(t, "online", obj.ActualState.GetState())
-}
+	// check that the actual state is now "online"
+	assert.Equal(t, "online", obj.ActualState.State)
 
-func TestWarm_SetState_Offline(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.WarmState{},
-		DesiredState: &state.WarmState{},
-	}
-
+	// set the state to "offline" again
 	obj.ActualState.SetState("offline", obj)
 
-	assert.Equal(t, "offline", obj.ActualState.GetState())
+	// check that the actual state is now "offline" again
+	assert.Equal(t, "offline", obj.ActualState.State)
+
+	obj.ActualState.SetState("draft", obj)
+
+	assert.Equal(t, "draft", obj.ActualState.State)
 }
 
-func TestOnlineState(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.OnlineState{},
-		DesiredState: &state.OnlineState{},
+func TestDesiredState_SetState(t *testing.T) {
+	// Initialize the actual state and the desired state
+	actualState := &state.ActualState{State: "offline"}
+	desiredState := &state.DesiredState{State: "online"}
+
+	// Initialize the object with the actual and desired states
+	obj := &state.Object{ActualState: actualState, DesiredState: desiredState}
+
+	// Call the SetState function to change the desired state to "warm"
+	obj.DesiredState.SetState("warm", obj)
+
+	// Check if the desired state is "warm"
+	if obj.DesiredState.GetState() != "warm" {
+		t.Errorf("SetState failed, expected state: %s, got: %s", "warm", obj.DesiredState.GetState())
 	}
 
-	assert.Equal(t, "online", obj.ActualState.GetState())
-}
+	// Call the SetState function to change the desired state to "online"
+	obj.DesiredState.SetState("online", obj)
 
-func TestOnline_SetState_Offline(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.OnlineState{},
-		DesiredState: &state.OnlineState{},
+	// Check if the desired state is "online"
+	if obj.DesiredState.GetState() != "online" {
+		t.Errorf("SetState failed, expected state: %s, got: %s", "online", obj.DesiredState.GetState())
 	}
-
-	obj.ActualState.SetState("offline", obj)
-
-	assert.Equal(t, "offline", obj.ActualState.GetState())
-}
-
-func TestOnline_SetState_Warm(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.OnlineState{},
-		DesiredState: &state.OnlineState{},
-	}
-
-	obj.ActualState.SetState("warm", obj)
-
-	assert.Equal(t, "warm", obj.ActualState.GetState())
-}
-
-func TestOfflineState(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.OfflineState{},
-		DesiredState: &state.OfflineState{},
-	}
-
-	assert.Equal(t, "offline", obj.ActualState.GetState())
-}
-
-func TestOffline_SetState_Warm(t *testing.T) {
-	obj := &state.Object{
-		ActualState:  &state.OfflineState{},
-		DesiredState: &state.OfflineState{},
-	}
-
-	obj.ActualState.SetState("warm", obj)
-
-	assert.Equal(t, "warm", obj.ActualState.GetState())
 }

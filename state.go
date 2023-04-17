@@ -2,7 +2,6 @@ package state
 
 import (
 	"fmt"
-	"time"
 )
 
 // State defines the state of an object
@@ -13,82 +12,43 @@ type State interface {
 
 // Object defines a struct that holds actual and desired states
 type Object struct {
-	ActualState  State
-	DesiredState State
+	ActualState  *ActualState
+	DesiredState *DesiredState
 }
 
-// DraftState defines a state where the object is in draft mode
-type DraftState struct{}
+// ActualState defines the actual state of the object
+type ActualState struct {
+	State string `json:"actual"`
+}
 
-func (ds *DraftState) SetState(state string, obj *Object) {
+func (as *ActualState) SetState(state string, obj *Object) {
 	switch state {
+	case "draft":
+		obj.ActualState = &ActualState{State: "draft"}
 	case "warm":
-		fmt.Println("Object is warming up...")
-		time.Sleep(3 * time.Second)
-		obj.ActualState = &WarmState{}
-	default:
-		fmt.Printf("Error: cannot transition to state %s from draft\n", state)
-	}
-}
-
-func (ds *DraftState) GetState() string {
-	return "draft"
-}
-
-// WarmState defines a state where the object is warming up
-type WarmState struct{}
-
-func (ws *WarmState) SetState(state string, obj *Object) {
-	switch state {
+		obj.ActualState = &ActualState{State: "warm"}
 	case "online":
-		fmt.Println("Object is now online!")
-		obj.ActualState = &OnlineState{}
+		obj.ActualState = &ActualState{State: "online"}
 	case "offline":
-		obj.ActualState = &OfflineState{}
+		obj.ActualState = &ActualState{State: "offline"}
 	default:
-		fmt.Printf("Error: cannot transition to state %s from warm\n", state)
+		fmt.Printf("Error: cannot transition to state %s from %s\n", state, as.State)
 	}
 }
 
-func (ws *WarmState) GetState() string {
-	return "warm"
+func (as *ActualState) GetState() string {
+	return as.State
 }
 
-// OnlineState defines a state where the object is online
-type OnlineState struct{}
-
-func (os *OnlineState) SetState(state string, obj *Object) {
-	switch state {
-	case "offline":
-		fmt.Println("Object is going offline...")
-		time.Sleep(3 * time.Second)
-		obj.ActualState = &OfflineState{}
-	case "warm":
-		fmt.Println("Object is going to warm state...")
-		obj.ActualState = &WarmState{}
-	default:
-		fmt.Printf("Error: cannot transition to state %s from online\n", state)
-	}
+// DesiredState defines the desired state of the object
+type DesiredState struct {
+	State string `json:"desired"`
 }
 
-func (os *OnlineState) GetState() string {
-	return "online"
+func (ds *DesiredState) SetState(state string, obj *Object) {
+	obj.DesiredState.State = state
 }
 
-// OfflineState defines a state where the object is offline
-type OfflineState struct{}
-
-func (os *OfflineState) SetState(state string, obj *Object) {
-	switch state {
-	case "warm":
-		fmt.Println("Object is going to warm state...")
-		time.Sleep(3 * time.Second)
-		obj.ActualState = &WarmState{}
-	default:
-		fmt.Printf("Error: cannot transition to state %s from offline\n", state)
-	}
-}
-
-func (os *OfflineState) GetState() string {
-	return "offline"
+func (ds *DesiredState) GetState() string {
+	return ds.State
 }
