@@ -1,0 +1,12 @@
+name: Release pipeline
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refresh golang package repository
+        run: curl https://sum.golang.org/lookup/github.com/IT4smart/sherlock-state@${{ github.event.release.tag_name }}
