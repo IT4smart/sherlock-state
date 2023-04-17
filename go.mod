@@ -1,4 +1,4 @@
-module it4smart.com/sherlock-state/v2
+module github.com/IT4smart/sherlock-state/v2
 
 go 1.18
 
