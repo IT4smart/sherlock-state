@@ -1,54 +1,56 @@
 package state
 
 import (
-	"fmt"
+	"errors"
 )
 
-// State defines the state of an object
-type State interface {
-	SetState(state string, obj *Object)
-	GetState() string
-}
-
 // Object defines a struct that holds actual and desired states
-type Object struct {
-	ActualState  *ActualState
-	DesiredState *DesiredState
+type State struct {
+	ActualState  string `json:"actual"`
+	DesiredState string `json:"desired"`
 }
 
-// ActualState defines the actual state of the object
-type ActualState struct {
-	State string `json:"actual"`
-}
+const (
+	Draft   = "draft"
+	Warm    = "warm"
+	Online  = "online"
+	Offline = "offline"
+)
 
-func (as *ActualState) SetState(state string, obj *Object) {
-	switch state {
-	case "draft":
-		obj.ActualState = &ActualState{State: "draft"}
-	case "warm":
-		obj.ActualState = &ActualState{State: "warm"}
-	case "online":
-		obj.ActualState = &ActualState{State: "online"}
-	case "offline":
-		obj.ActualState = &ActualState{State: "offline"}
-	default:
-		fmt.Printf("Error: cannot transition to state %s from %s\n", state, as.State)
+// SetActualState sets the actual state of the object
+func (s *State) SetActualState(state string) error {
+	if !isValidState(state) {
+		return errors.New("invalid state")
 	}
+	s.ActualState = state
+	return nil
 }
 
-func (as *ActualState) GetState() string {
-	return as.State
+// SetDesiredState sets the desired state of the object
+func (s *State) SetDesiredState(state string) error {
+	if !isValidState(state) {
+		return errors.New("invalid state")
+	}
+	s.DesiredState = state
+	return nil
 }
 
-// DesiredState defines the desired state of the object
-type DesiredState struct {
-	State string `json:"desired"`
+// GetActualState gets the actual state of the object
+func (s *State) GetActualState() string {
+	return s.ActualState
 }
 
-func (ds *DesiredState) SetState(state string, obj *Object) {
-	obj.DesiredState.State = state
+// GetDesiredState gets the desired state of the object
+func (s *State) GetDesiredState() string {
+	return s.DesiredState
 }
 
-func (ds *DesiredState) GetState() string {
-	return ds.State
+// isValidState returns true if the provided state is valid, and false otherwise
+func isValidState(state string) bool {
+	switch state {
+	case Draft, Warm, Online, Offline:
+		return true
+	default:
+		return false
+	}
 }

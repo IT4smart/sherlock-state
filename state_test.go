@@ -4,53 +4,60 @@ import (
 	"testing"
 
 	state "github.com/IT4smart/sherlock-state"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestActualState_SetState(t *testing.T) {
-	// create a new object with an actual state of "offline"
-	obj := &state.Object{
-		ActualState: &state.ActualState{State: "offline"},
+func TestSetActualState(t *testing.T) {
+	state := &state.State{}
+	err := state.SetActualState("draft")
+	if err != nil {
+		t.Errorf("Error setting actual state: %v", err)
+	}
+	if state.ActualState != "draft" {
+		t.Errorf("Actual state not set correctly: expected %s, but got %s", "draft", state.ActualState)
 	}
 
-	// set the state to "online"
-	obj.ActualState.SetState("online", obj)
-
-	// check that the actual state is now "online"
-	assert.Equal(t, "online", obj.ActualState.State)
-
-	// set the state to "offline" again
-	obj.ActualState.SetState("offline", obj)
-
-	// check that the actual state is now "offline" again
-	assert.Equal(t, "offline", obj.ActualState.State)
-
-	obj.ActualState.SetState("draft", obj)
-
-	assert.Equal(t, "draft", obj.ActualState.State)
+	// test setting invalid state
+	err = state.SetActualState("invalid")
+	if err == nil {
+		t.Errorf("Expected error setting invalid actual state, but got nil")
+	}
 }
 
-func TestDesiredState_SetState(t *testing.T) {
-	// Initialize the actual state and the desired state
-	actualState := &state.ActualState{State: "offline"}
-	desiredState := &state.DesiredState{State: "online"}
+func TestSetDesiredState(t *testing.T) {
+	validState := "warm"
+	invalidState := "invalid"
 
-	// Initialize the object with the actual and desired states
-	obj := &state.Object{ActualState: actualState, DesiredState: desiredState}
+	s := state.State{}
 
-	// Call the SetState function to change the desired state to "warm"
-	obj.DesiredState.SetState("warm", obj)
-
-	// Check if the desired state is "warm"
-	if obj.DesiredState.GetState() != "warm" {
-		t.Errorf("SetState failed, expected state: %s, got: %s", "warm", obj.DesiredState.GetState())
+	// Test setting a valid state
+	err := s.SetDesiredState(validState)
+	if err != nil {
+		t.Errorf("Expected no error but got %v", err)
+	}
+	if s.DesiredState != validState {
+		t.Errorf("Expected desired state to be %s but got %s", validState, s.DesiredState)
 	}
 
-	// Call the SetState function to change the desired state to "online"
-	obj.DesiredState.SetState("online", obj)
+	// Test setting an invalid state
+	err = s.SetDesiredState(invalidState)
+	if err == nil {
+		t.Errorf("Expected error but got nil")
+	}
+	if s.DesiredState == invalidState {
+		t.Errorf("Expected desired state to remain unchanged but got %s", s.DesiredState)
+	}
+}
 
-	// Check if the desired state is "online"
-	if obj.DesiredState.GetState() != "online" {
-		t.Errorf("SetState failed, expected state: %s, got: %s", "online", obj.DesiredState.GetState())
+func TestGetActualState(t *testing.T) {
+	s := &state.State{ActualState: state.Online}
+	if astate := s.GetActualState(); astate != state.Online {
+		t.Errorf("expected %q, but got %q", state.Online, astate)
+	}
+}
+
+func TestGetDesiredState(t *testing.T) {
+	s := &state.State{DesiredState: state.Online}
+	if astate := s.GetDesiredState(); astate != state.Online {
+		t.Errorf("expected %q, but got %q", state.Online, astate)
 	}
 }
