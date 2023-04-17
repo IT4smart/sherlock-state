@@ -3,7 +3,7 @@ package state_test
 import (
 	"testing"
 
-	state "github.com/IT4smart/sherlock-state/v2"
+	state "github.com/IT4smart/sherlock-state"
 	"github.com/stretchr/testify/assert"
 )
 
