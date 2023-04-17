@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	state "it4smart.com/sherlock-state/v2"
+	state "github.com/IT4smart/sherlock-state/v2"
 )
 
 func TestDraftState(t *testing.T) {
